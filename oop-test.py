@@ -16,12 +16,27 @@ class Item:
     def calculate_total_price(self):
         return self.price * self.quantity
 
+    def apply_discount(self):
+        self.price = self.price * self.pay_rate
 
-item1 = Item("Phone", 100, 5)
-item2 = Item("Laptop", 1000, 4)
 
-print(Item.__dict__)  # All the attributes for the class level
-print(item1.__dict__)  # All the attributes for the instance level
+item1 = Item("Phone", 100, 1)
+item2 = Item("Laptop", 1000, 3)
+item3 = Item("Cable", 10, 5)
+item4 = Item("Mouse", 50, 5)
+item5 = Item("Keyboard", 75, 5)
+
+
+# Example of modifying the discount after creating the instance
+# item1.apply_discount()
+# print(item1.price)
+
+# item2.pay_rate = 0.7
+# item2.apply_discount()
+# print(item2.price)
+
+# print(Item.__dict__)  # All the attributes for the class level
+# print(item1.__dict__)  # All the attributes for the instance level
 
 # print(item1.name)
 # print(item1.calculate_total_price())
