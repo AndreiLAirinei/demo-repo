@@ -7,7 +7,7 @@ app = Flask("TodolistAPI")
 api = Api(app)
 
 parser = reqparse.RequestParser()
-parser.add_argument('name', type=str, required=True, location='form')
+parser.add_argument('name', type=str, required=True)
 parser.add_argument('dueDate', type=datetime, required=False, location='form')
 
 
@@ -39,7 +39,8 @@ class Task(Resource):
         args = parser.parse_args()
         new_task = {'name': args['name'],
                     'dueDate': args['dueDate']}
-        if new_task.items[2] == '':
+
+        if new_task.items[2] == None:
             new_task['dueDate'] = datetime.today().year
 
         tasks[task_id] = new_task
@@ -67,8 +68,9 @@ class TaskSchedule(Resource):
         # an integer then making a list and adding 1
         task_id = f"task{task_id}"
 
-        if new_task['dueDate'] == '':
+        if not new_task['dueDate']:
             new_task['dueDate'] = datetime.today().year
+
         tasks[task_id] = new_task
         write_changes_to_file()
         return tasks[task_id], 201
@@ -79,3 +81,4 @@ api.add_resource(TaskSchedule, '/tasks')
 
 if __name__ == '__main__':
     app.run()
+

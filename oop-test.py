@@ -55,15 +55,26 @@ class Item:
 
 
 class Phone(Item):
-    pass
+    all = []
 
+    def __init__(self, name: str, price: float, quantity=0, broken_phones=0):
+        # Run validations to the received arguments
+        assert price >= 0, f"Price {price} is not greater than or equal than 0!"
+        assert quantity >= 0, f"Quantity {quantity} is not greater or equal than 0!"
 
-'''
+        # Assign to self object
+        # print(f"An instance created: {name}"
+        self.name = name
+        self.price = price
+        self.quantity = quantity
+        self.broken_phones = broken_phones
+
+        Item.all.append(self)
+
 phone1 = Phone("jscPhonev10", 500, 5)
 phone1.broken_phones = 1
 phone2 = Phone("jscPhonev20", 700, 5)
 phone2.broken_phones = 1
-'''
 
 
 
