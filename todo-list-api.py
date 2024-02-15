@@ -1,14 +1,14 @@
 from flask import Flask
 from flask_restful import Resource, Api, reqparse, abort
+from datetime import datetime
 import json
-
 
 app = Flask("TodolistAPI")
 api = Api(app)
 
 parser = reqparse.RequestParser()
 parser.add_argument('name', type=str, required=True, location='form')
-# parser.add_argument('dueDate', type=int, required=True, location='form')
+parser.add_argument('dueDate', type=datetime, required=False, location='form')
 
 
 with open('tasks.json', 'r') as f:
@@ -37,7 +37,11 @@ class Task(Resource):
     @staticmethod
     def put(task_id):
         args = parser.parse_args()
-        new_task = {'name': args['name']}
+        new_task = {'name': args['name'],
+                    'dueDate': args['dueDate']}
+        if new_task.items[2] == '':
+            new_task['dueDate'] = datetime.today().year
+
         tasks[task_id] = new_task
         write_changes_to_file()
         return {task_id: tasks[task_id]}, 201
@@ -56,11 +60,15 @@ class TaskSchedule(Resource):
     @staticmethod
     def post():
         args = parser.parse_args()
-        new_task = {'name': args['name']}
+        new_task = {'name': args['name'],
+                    'dueDate': args['dueDate']}
         task_id = max(int(v.lstrip('task')) for v in tasks.keys()) + 1
         # Takes all the task ids, stripping the 'task', converting it to
         # an integer then making a list and adding 1
         task_id = f"task{task_id}"
+
+        if new_task['dueDate'] == '':
+            new_task['dueDate'] = datetime.today().year
         tasks[task_id] = new_task
         write_changes_to_file()
         return tasks[task_id], 201
