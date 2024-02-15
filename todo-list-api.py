@@ -24,9 +24,6 @@ def write_changes_to_file():
         json.dump(tasks, f)
 
 
-write_changes_to_file()
-
-
 class Task(Resource):
 
     @staticmethod
