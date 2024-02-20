@@ -2,6 +2,4 @@
 
 Some text
 
-readme-instructions
-changes
-modifying second branch
+test repository made for learning
