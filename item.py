@@ -13,7 +13,7 @@ class Item:
         # Assign to self object
         # print(f"An instance created: {name}"
         self.__name = name
-        self.price = price
+        self.__price = price
         self.quantity = quantity
 
         # Actions to execute
@@ -31,11 +31,27 @@ class Item:
         else:
             self.__name = value
 
+    @property
+    def price(self):
+        return self.__price
+
+    @price.setter
+    def price(self, value):
+        if value < 0:
+            raise Exception("The price cannot be less than 0!")
+        elif value == self.__price:
+            raise Exception("The price cannot be the same as the last price!")
+        else:
+            self.__price = value
+
     def calculate_total_price(self):
-        return self.price * self.quantity
+        return self.__price * self.quantity
 
     def apply_discount(self):
-        self.price = self.price * self.pay_rate
+        self.__price = self.__price * self.pay_rate
+
+    def apply_increment(self, increment_value):
+        self.__price = self.__price + self.__price * increment_value
 
     @classmethod
     def instantiate_from_csv(cls):
