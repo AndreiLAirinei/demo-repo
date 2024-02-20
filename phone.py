@@ -2,9 +2,10 @@ from item import Item
 
 
 class Phone(Item):
+    pay_rate = 0.5  # Discount applied to phones
 
     def __init__(self, name: str, price: float, quantity=0, broken_phones=0):
-        # Cal to super function to have access to all attributes /methods
+        # Call to super function to have access to all attributes /methods
         super().__init__(
             name, price, quantity
         )
