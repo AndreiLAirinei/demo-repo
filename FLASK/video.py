@@ -1,5 +1,5 @@
 from flask_restful import Resource, abort, reqparse
-from file_changes import write_changes_to_file, videos
+from video_file_changes import write_changes_to_file, videos
 
 
 parser = reqparse.RequestParser()

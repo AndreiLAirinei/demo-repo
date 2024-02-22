@@ -1,29 +1,10 @@
 {
   "task2": {
     "name": "Learn chinese"
-  }
-  "task14": {
-    "name": "Nume demo",
-    "dueDate": null
-  }
+  },
   "task1": {
     "name": "Wash dishes"
   },
-  "task4": {
-    "name": "name-task2"
-  },
-  "task5": {
-    "name": "namedtasks",
-    "dueDate": 20422242
-  },
-  "task10": {
-    "name": "taketest22",
-    "dueDate": null
-  },
-  "task11": {
-    "name": "taketest24",
-    "dueDate": null
-  }
   "task3": {
     "name": "test-post-task-X"
   }
