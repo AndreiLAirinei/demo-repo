@@ -3,7 +3,7 @@ from todo_list_file_changes import write_changes_to_file, tasks
 from datetime import datetime
 
 parser = reqparse.RequestParser()
-parser.add_argument('name', type=str, required=True)
+parser.add_argument('name', type=str, required=True, location='form')
 parser.add_argument('dueDate', type=datetime, required=False, location='form')
 
 
@@ -23,8 +23,8 @@ class Task(Resource):
         new_task = {'name': args['name'],
                     'dueDate': args['dueDate']}
 
-    #    if new_task.items[2] is None:
-    #        new_task['dueDate'] = datetime.today().year
+        if not new_task['dueDate']:
+            new_task['dueDate'] = datetime.today().year
 
         tasks[task_id] = new_task
         write_changes_to_file()
