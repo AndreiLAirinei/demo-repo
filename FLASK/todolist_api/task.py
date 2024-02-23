@@ -1,39 +1,52 @@
-from flask_restful import Resource, reqparse, abort
-from todo_list_file_changes import write_changes_to_file, tasks
 from datetime import datetime
 
-parser = reqparse.RequestParser()
-parser.add_argument('name', type=str, required=True, location='form')
-parser.add_argument('dueDate', type=datetime, required=False, location='form')
 
+class Task:
+    def __init__(self,
+                 name: str,
+                 assigner: str,
+                 company: str,
+                 deadline: time,
+                 priority: int = 0,
+                 description: str = "",
+                 status: str = "Not started",
+                 assigned_personnel: list = None,
+                 creation_date: datetime = None,
+                 last_modified_date: datetime = None,
+                 comments: str = ""
+                 ):
 
-class Task(Resource):
+        self.name = name
+        self.assigner = assigner
+        self.company = company
+        self.deadline = deadline
+        self.priority = priority or [1, 2, 3]
+        self.description = description
+        self.status = status
+        self.assigned_personnel = assigned_personnel
+        self.creation_date = creation_date or datetime.now()
+        self.last_modified_date = last_modified_date or self.creation_date
+        self.comments = comments
 
-    @classmethod
-    def get(cls, task_id):
-        if task_id == "all":
-            return tasks
-        if task_id not in tasks:
-            abort(404, message=f'Task {task_id} was not found!')
-        return tasks[task_id]
+    # String representation
+    def __str__(self):
+        return f"{self.name} assigned to {self.assigned_personnel} with the priority {self.priority}"
 
-    @classmethod
-    def put(cls, task_id):
-        args = parser.parse_args()
-        new_task = {'name': args['name'],
-                    'dueDate': args['dueDate']}
+    # Comparison methods
+    def __eq__(self, other):
+        return self.priority == other.priority
 
-        if not new_task['dueDate']:
-            new_task['dueDate'] = datetime.today().year
+    def __lt__(self, other):
+        return self.priority < other.priority
 
-        tasks[task_id] = new_task
-        write_changes_to_file()
-        return {task_id: tasks[task_id]}, 201
+    def is_overdue(self):
+        return self.deadline < datetime.now()
 
-    @classmethod
-    def delete(cls, task_id):
-        if task_id not in tasks:
-            abort(404, message=f'Task {task_id} was not found!')
-        del tasks[task_id]
-        write_changes_to_file()
-        return "", 204
+    def update_task(self, new_priority, new_status):
+        self.priority = new_priority
+        self.status = new_status
+        self.last_modified_date = datetime.now()
+
+    def add_comment(self, new_comment):
+        self.comments += f"\n {new_comment}"
+        self.last_modified_date = datetime.now()
