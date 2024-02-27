@@ -1,24 +1,46 @@
-from flask import Flask
-from flask_restful import Api
+from flask import Flask, request, jsonify
 from TaskController import Controller
-from Repository import InMemoryRepository
+from Repository import JSONRepository
+
+app = Flask(__name__)
+
+repository = JSONRepository()
+controller_instance = Controller(repository=repository)
+
+# def type_of_repository(var):
+#     if var == 1:
+#         repository = JSONRepository()
+#      elif var == 2:
+#          repository = CSVRepository()
 
 
-app = Flask("main")
-api = Api(app)
+# Functions from controller for each url
+# @app for PUT/PATCH/DELETE
 
-repository = InMemoryRepository()
 
-# Route for all tasks (GET, POST)
-api.add_resource(Controller, '/tasks',
-                 endpoint='tasks_all',
-                 resource_class_kwargs={'repository': repository})
+@app.route('/tasks', methods=['GET'])
+@app.route('/tasks/all', methods=['GET'])
+def get_all_tasks():
+    data = controller_instance.get(task_id="all")
+    return jsonify(data)
 
-# Route for a specific task by ID (GET, PUT, PATCH, DELETE)
-api.add_resource(Controller, '/tasks/<string:task_id>',
-                 endpoint='tasks_by_id',
-                 resource_class_kwargs={'repository': repository})
+
+@app.route('/tasks/<task_id>', methods=['GET'])
+def get_task(task_id):
+    data = controller_instance.get(task_id)
+    return jsonify(data)
+
+
+@app.route('/tasks', methods=['POST'])
+def post_task():
+    try:
+        result = controller_instance.post()
+        return jsonify(result)
+    except Exception as e:
+        return {"error": str(e)}, 500
 
 
 if __name__ == '__main__':
+
+    type_of_repository = 1  # =json / 2 = csv
     app.run(debug=True)

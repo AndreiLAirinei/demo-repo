@@ -5,7 +5,6 @@ from typing import List, Optional
 class Task:
 
     def __init__(self,
-                 task_id: Optional[str],
                  name: str,
                  assigner: str,
                  company: str,
@@ -19,7 +18,6 @@ class Task:
                  comments: Optional[str] = ""
                  ):
 
-        self.__task_id = task_id
         self.name = name
         self.assigner = assigner
         self.company = company
