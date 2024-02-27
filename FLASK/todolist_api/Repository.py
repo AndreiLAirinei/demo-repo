@@ -28,6 +28,9 @@ class JSONRepository:
         write_changes_to_file(new_task)  # Writes the updated data back to file
         return new_task  # Returns the newly created task
 
+    def update(self, attr):
+        pass
+
     def delete(self, task_id):
         deleted_task = self.__data.pop(task_id)  # Removes the item and returns its value
         write_changes_to_file(self.__data)  # Writes the updated data back to file

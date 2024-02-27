@@ -22,7 +22,7 @@ def write_changes_to_file(new_task, file_path='tasks.json'):
         sorted_tasks_dict = {k: v for k, v in sorted_tasks}
 
         with open(file_path, "w") as file:
-            json.dump(sorted_tasks_dict, file, indent=2, separators=(',', ': '))
+            json.dump(sorted_tasks_dict, file, indent=2, separators=(',', ': '), default=str)
 
     except (FileNotFoundError, json.JSONDecodeError) as error:
         print(f"Error writing tasks to file: {error}")

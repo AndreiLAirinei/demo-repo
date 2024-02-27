@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, jsonify, make_response
 from TaskController import Controller
 from Repository import JSONRepository
 
@@ -22,25 +22,31 @@ controller_instance = Controller(repository=repository)
 @app.route('/tasks/all', methods=['GET'])
 def get_all_tasks():
     data = controller_instance.get(task_id="all")
-    return jsonify(data)
+    response = make_response(jsonify(data))
+    response.headers['Content-Type'] = 'application/json'
+    return response
 
 
 @app.route('/tasks/<task_id>', methods=['GET'])
 def get_task(task_id):
     data = controller_instance.get(task_id)
-    return jsonify(data)
+    response = make_response(jsonify(data))
+    response.headers['Content-Type'] = 'application/json'
+    return response
 
 
 @app.route('/tasks', methods=['POST'])
 def post_task():
-    result = controller_instance.post()
-    return jsonify(result)
+    data = controller_instance.post()
+    response = make_response(data)
+    response.headers['Content-Type'] = 'application/json'
+    return response
 
 
 @app.route('/tasks/<task_id>', methods=['DELETE'])
 def delete_task(task_id):
     result = controller_instance.delete(task_id)
-    return jsonify(result)
+    return result
 
 
 if __name__ == '__main__':
