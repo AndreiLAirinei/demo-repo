@@ -30,24 +30,27 @@ class Controller(MethodView):
             abort(404, message=f'Task {task_id} was not found!')
 
     def post(self):
-        args = parser.parse_args()
+        try:
+            args = parser.parse_args()
 
-        # Creating a new task using the parsed arguments
-        new_data = {
-            "name": args["name"],
-            "assigner": args['assigner'],
-            "company": args['company'],
-            "deadline": args['deadline'],
-            "priority": args['priority'],
-            "description": args['description'],
-            "status": args['status'],
-            "assigned_personnel": args['assigned_personnel'],
-            "creation_date": args['creation_date'],
-            "last_modified_date": args['last_modified_date'],
-            "comments": args['comments'],
-        }
+            # Creating a new task using the parsed arguments
+            new_data = {
+                "name": args["name"],
+                "assigner": args['assigner'],
+                "company": args['company'],
+                "deadline": args['deadline'],
+                "priority": args['priority'],
+                "description": args['description'],
+                "status": args['status'],
+                "assigned_personnel": args['assigned_personnel'],
+                "creation_date": args['creation_date'],
+                "last_modified_date": args['last_modified_date'],
+                "comments": args['comments'],
+            }
 
-        return self.repository.create(new_data)
+            return self.repository.create(new_data)
+        except Exception as e:
+            return {"Error": str(e)}, 500
 
     def put(self, task_id, data):
         pass
@@ -56,7 +59,7 @@ class Controller(MethodView):
         pass
 
     def delete(self, task_id):
-        if self.repository.task_id.task_exists(task_id):
+        if self.repository.task_exists(task_id):
             return self.repository.delete(task_id), 204
         else:
             abort(404, message=f'Task {task_id} was not found!')

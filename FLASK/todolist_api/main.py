@@ -33,11 +33,14 @@ def get_task(task_id):
 
 @app.route('/tasks', methods=['POST'])
 def post_task():
-    try:
-        result = controller_instance.post()
-        return jsonify(result)
-    except Exception as e:
-        return {"error": str(e)}, 500
+    result = controller_instance.post()
+    return jsonify(result)
+
+
+@app.route('/tasks/<task_id>', methods=['DELETE'])
+def delete_task(task_id):
+    result = controller_instance.delete(task_id)
+    return jsonify(result)
 
 
 if __name__ == '__main__':
