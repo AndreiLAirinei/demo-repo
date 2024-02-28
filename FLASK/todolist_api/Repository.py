@@ -29,7 +29,6 @@ class JSONRepository:
         return new_task  # Returns the newly created task
 
     def update(self, task_id, updated_data):
-
         updated_task = {task_id: updated_data}
         self.__data = updated_task
         write_changes_to_file(updated_task)
@@ -37,7 +36,7 @@ class JSONRepository:
 
     def patch(self, task_id, updated_task):
         self.__data[task_id] = updated_task
-        write_changes_to_file(self.__data)  # Assuming you have a function to write changes to file
+        write_changes_to_file(self.__data)
         return updated_task
 
     def delete(self, task_id):
@@ -46,9 +45,8 @@ class JSONRepository:
         return deleted_task  # Returns the deleted task (for double-checking)
 
     #  Checks if a tasks exists or not.
-    @staticmethod
-    def task_exists(task_id):
-        if task_id not in read_tasks_from_file():
+    def task_exists(self, task_id):
+        if task_id not in self.__data:
             print(f"Task with ID {task_id} does not exist.")
             return False
         return True

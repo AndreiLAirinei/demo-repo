@@ -52,24 +52,3 @@ class Task:
         return (f"{self.__class__.__name__}('{self.name}', '{self.assigner}', '{self.company}', "
                 f"{self.priority}, '{self.description}', '{self.status}', {self.assigned_personnel}, "
                 f"'{self.creation_date}', '{self.last_modified_date}', '{self.comments}')")
-
-
-# if __name__ == "__main__":
-#
-#     task_instance = Task(
-#         task_id="task1",
-#         name="Example Task",
-#         assigner="John Doe",
-#         company="ABC Inc",
-#         deadline=datetime(2025, 12, 4),
-#         priority=2,
-#         description="A random description",
-#         status="In Progress",
-#         assigned_personnel=["Alice", "Bob"],
-#         creation_date=datetime(2024, 2, 1),
-#         last_modified_date=datetime(2024, 2, 15),
-#         comments="Some comments"
-#     )
-#
-#     print(repr(task_instance))
-#     print(Task.is_overdue(task_instance))

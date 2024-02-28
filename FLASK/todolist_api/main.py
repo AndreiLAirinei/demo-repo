@@ -63,13 +63,10 @@ def patch_task(task_id, updated_field):
     print(f"Received task_id: {task_id}, updated_field: {updated_field}")
 
     if updated_field not in updated_data:
-        return {"error": f"Field '{updated_field}' not found in JSON data"}, 400
-
-    new_value = updated_data[updated_field]
-    print(f"Updating '{updated_field}' to: {new_value}")
+        return abort{"error": f"Field '{updated_field}' not found in JSON data"}, 400
 
     print(f"Received JSON data: {updated_data}")
-    data = controller_instance.patch(task_id, updated_field, new_value)
+    data = controller_instance.patch(task_id, updated_data)
     response = make_response(data)
     response.headers['Content-Type'] = 'application/json'
     return response
