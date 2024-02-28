@@ -1,4 +1,4 @@
-from file_changes import write_changes_to_file, read_tasks_from_file as tasks
+from file_changes import write_changes_to_file, read_tasks_from_file
 
 
 class JSONRepository:
@@ -9,7 +9,7 @@ class JSONRepository:
         If there's an error reading tasks from the file, it raises an error.
         """
         try:
-            self.__data = tasks()
+            self.__data = read_tasks_from_file()
         except Exception as error:
             print(f"Error loading tasks from file: {error}")
 
@@ -43,7 +43,7 @@ class JSONRepository:
     #  Checks if a tasks exists or not.
     @staticmethod
     def task_exists(task_id):
-        if task_id not in tasks():
+        if task_id not in read_tasks_from_file():
             print(f"Task with ID {task_id} does not exist.")
             return False
         return True
