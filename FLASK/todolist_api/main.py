@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, make_response
+from flask import Flask, request, make_response
 from TaskController import Controller
 from Repository import JSONRepository
 
@@ -22,7 +22,7 @@ controller_instance = Controller(repository=repository)
 @app.route('/tasks/all', methods=['GET'])
 def get_all_tasks():
     data = controller_instance.get(task_id="all")
-    response = make_response(jsonify(data))
+    response = make_response(data)
     response.headers['Content-Type'] = 'application/json'
     return response
 
@@ -30,7 +30,7 @@ def get_all_tasks():
 @app.route('/tasks/<task_id>', methods=['GET'])
 def get_task(task_id):
     data = controller_instance.get(task_id)
-    response = make_response(jsonify(data))
+    response = make_response(data)
     response.headers['Content-Type'] = 'application/json'
     return response
 
@@ -52,6 +52,24 @@ def delete_task(task_id):
 @app.route('/tasks/<task_id>', methods=['PUT'])
 def put_task(task_id):
     data = controller_instance.put(task_id)
+    response = make_response(data)
+    response.headers['Content-Type'] = 'application/json'
+    return response
+
+
+@app.route('/tasks/<task_id>/<updated_field>', methods=['PATCH'])
+def patch_task(task_id, updated_field):
+    updated_data = request.json
+    print(f"Received task_id: {task_id}, updated_field: {updated_field}")
+
+    if updated_field not in updated_data:
+        return {"error": f"Field '{updated_field}' not found in JSON data"}, 400
+
+    new_value = updated_data[updated_field]
+    print(f"Updating '{updated_field}' to: {new_value}")
+
+    print(f"Received JSON data: {updated_data}")
+    data = controller_instance.patch(task_id, updated_field, new_value)
     response = make_response(data)
     response.headers['Content-Type'] = 'application/json'
     return response

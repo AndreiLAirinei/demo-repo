@@ -44,11 +44,6 @@ class Task:
             remaining_time = self.deadline - datetime.now()
             return f"You still have {remaining_time.days} days to do the task!"
 
-    def update_task(self, new_priority, new_status):
-        self.priority = new_priority
-        self.status = new_status
-        self.last_modified_date = datetime.now()
-
     def add_comment(self, new_comment):
         self.comments += f"\n {new_comment}"
         self.last_modified_date = datetime.now()

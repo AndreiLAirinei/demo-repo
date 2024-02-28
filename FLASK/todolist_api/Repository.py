@@ -28,11 +28,16 @@ class JSONRepository:
         write_changes_to_file(new_task)  # Writes the updated data back to file
         return new_task  # Returns the newly created task
 
-    def update(self, task_id, attr):
+    def update(self, task_id, updated_data):
 
-        updated_task = {task_id: attr}
+        updated_task = {task_id: updated_data}
         self.__data = updated_task
         write_changes_to_file(updated_task)
+        return updated_task
+
+    def patch(self, task_id, updated_task):
+        self.__data[task_id] = updated_task
+        write_changes_to_file(self.__data)  # Assuming you have a function to write changes to file
         return updated_task
 
     def delete(self, task_id):

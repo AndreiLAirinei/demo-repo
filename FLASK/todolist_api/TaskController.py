@@ -1,5 +1,4 @@
 from flask.views import MethodView
-from flask import jsonify
 from flask_restful import abort, reqparse
 from datetime import datetime
 
@@ -76,8 +75,8 @@ class Controller(MethodView):
                 # Get the existing task from the repo to retain its creation_date
                 existing_task = self.repository.get_by_id(task_id)
 
-                # Creating a new task using the parsed arguments
-                update_data = {
+                # Updating the task using the parsed arguments
+                updated_data = {
                     "name": args["name"],
                     "assigner": args['assigner'],
                     "company": args['company'],
@@ -91,33 +90,46 @@ class Controller(MethodView):
                     "comments": args['comments'],
                 }
 
-                return self.repository.update(task_id, update_data)
+                self.repository.update(task_id, updated_data)
+
+                return f"Task with ID {task_id} updated successfully.", 200
             else:
-                return f"Missing parsed attributes. ", 500
+                return f"Missing parsed attributes.", 400
         else:
             abort(404, message=f'Task {task_id} was not found!')
 
-    def patch(self, task_id, data):
-        pass
+    def patch(self, task_id, updated_field):
+        if self.repository.task_exists(task_id):
+            if parser():
+                args = parser()
+                # Get the existing task from the repo
+                existing_task = self.repository.get_by_id(task_id)
+
+                # Adjusting and formatting last modified date to %Y-%m-%d format
+                args['last_modified_date'] = datetime.today()
+                last_modified_date = args['last_modified_date'].strftime('%Y-%m-%d %H:%M')
+
+                # Checks if the fields is in the task
+                if updated_field in existing_task[task_id]:
+                    # Updates said field
+                    existing_task[task_id][updated_field] = args[updated_field]
+                    existing_task[task_id]['last_modified_date'] = last_modified_date
+
+                    print(f"Task with ID {task_id} updated successfully."), 200
+
+                    return self.repository.patch(task_id, existing_task[task_id])
+                else:
+                    # Field not found, return appropriate status code and message
+                    abort(404, message=f"Field '{updated_field}' not found in task with ID {task_id}.")
+            else:
+                # Missing parsed attributes, return appropriate status code and message
+                abort(400, message="Missing parsed attributes.")
+        else:
+            # Task not found, return appropriate status code and message
+            abort(404, message=f"Task with ID {task_id} not found.")
 
     def delete(self, task_id):
         if self.repository.task_exists(task_id):
             return self.repository.delete(task_id)
         else:
             abort(404, message=f'Task {task_id} was not found!')
-
-
-"""
-    def put(cls, task_id):
-        args = parser.parse_args()
-        new_task = {'name': args['name'],
-                    'dueDate': args['dueDate']}
-
-        if not new_task['dueDate']:
-            new_task['dueDate'] = datetime.today().year
-
-        t`asks[task_id] = new_task`
-        write_changes_to_file()
-        return {task_id: tasks[task_id]}, 201
-
-"""
