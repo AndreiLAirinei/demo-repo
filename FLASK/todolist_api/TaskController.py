@@ -67,7 +67,7 @@ class Controller(MethodView):
     def post(self):
         new_data = parser_create()
         self.repository.create(new_data)
-        abort(200, message=f"Task created successfully!")
+        return {"message": f"Task created successfully."}, 200
 
     def put(self, task_id):
         if self.repository.task_exists(task_id):
@@ -77,7 +77,7 @@ class Controller(MethodView):
             updated_data = parser_create()
 
             self.repository.update(task_id, updated_data)
-            return abort(200, message=f"Task created successfully!")
+            return {"message": f"Task with ID {task_id} created successfully."}, 200
         else:
             abort(404, message=f"Task {task_id} was not found!")
 
@@ -97,13 +97,13 @@ class Controller(MethodView):
                     abort(404, message=f"Field '{field}' not found in task with ID {task_id}.")
 
             self.repository.update(task_id, existing_task)
-            return abort(200, message=f"Task with ID {task_id} patched successfully.")
+            return {"message": f"Task with ID {task_id} patched successfully."}, 200
         else:
             abort(404, message=f"Task with ID {task_id} not found.")
 
     def delete(self, task_id):
         if self.repository.task_exists(task_id):
             self.repository.delete(task_id)
-            return abort(200, message=f"Task with ID {task_id} deleted successfully.")
+            return {"message": f"Task with ID {task_id} deleted successfully."}, 200
         else:
             abort(404, message=f'Task {task_id} was not found!')
