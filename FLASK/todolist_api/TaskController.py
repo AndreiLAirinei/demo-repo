@@ -30,7 +30,6 @@ class Controller(MethodView):
     def __init__(self, repository):
         self.repository = repository
 
-    # noinspection PyGlobalUndefined
     def get(self, task_id):
         if task_id.lower() == "all":
             return self.repository.get_all()
@@ -65,8 +64,38 @@ class Controller(MethodView):
         else:
             return f"Missing parsed attributes. ", 500
 
-    def put(self, task_id, data):
-        pass
+    def put(self, task_id):
+        if self.repository.task_exists(task_id):
+            if parser():
+                args = parser()
+
+                # Adjusting and formatting last modified date to %Y-%m-%d format
+                args['last_modified_date'] = datetime.today()
+                last_modified_date = args['last_modified_date'].strftime('%Y-%m-%d %H:%M')
+
+                # Get the existing task from the repo to retain its creation_date
+                existing_task = self.repository.get_by_id(task_id)
+
+                # Creating a new task using the parsed arguments
+                update_data = {
+                    "name": args["name"],
+                    "assigner": args['assigner'],
+                    "company": args['company'],
+                    "deadline": args['deadline'],
+                    "priority": args['priority'],
+                    "description": args['description'],
+                    "status": args['status'],
+                    "assigned_personnel": args['assigned_personnel'],
+                    "creation_date": existing_task['creation_date'],
+                    "last_modified_date": last_modified_date,
+                    "comments": args['comments'],
+                }
+
+                return self.repository.update(task_id, update_data)
+            else:
+                return f"Missing parsed attributes. ", 500
+        else:
+            abort(404, message=f'Task {task_id} was not found!')
 
     def patch(self, task_id, data):
         pass
@@ -87,7 +116,7 @@ class Controller(MethodView):
         if not new_task['dueDate']:
             new_task['dueDate'] = datetime.today().year
 
-        tasks[task_id] = new_task
+        t`asks[task_id] = new_task`
         write_changes_to_file()
         return {task_id: tasks[task_id]}, 201
 

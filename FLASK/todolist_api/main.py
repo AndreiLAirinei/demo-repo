@@ -49,6 +49,14 @@ def delete_task(task_id):
     return result
 
 
+@app.route('/tasks/<task_id>', methods=['PUT'])
+def put_task(task_id):
+    data = controller_instance.put(task_id)
+    response = make_response(data)
+    response.headers['Content-Type'] = 'application/json'
+    return response
+
+
 if __name__ == '__main__':
 
     type_of_repository = 1  # =json / 2 = csv
