@@ -59,9 +59,28 @@ def put_task(task_id):
 
 @app.route('/tasks/<task_id>/<updated_field>', methods=['PATCH'])
 def patch_task(task_id, updated_field):
-    updated_data = request.json
+    updated_field = request.json.get(updated_field)
 
-    data = controller_instance.patch(task_id, updated_data)
+    if updated_field is None:
+
+        data = {'error': 'Invalid field'}
+    else:
+        data = controller_instance.patch(task_id, updated_field)
+
+    response = make_response(data)
+    response.headers['Content-Type'] = 'application/json'
+    return response
+
+
+@app.route('/tasks/<task_id>/status', methods=['PATCH'])
+def status_update(task_id):
+    status_data = request.json.get('status')
+
+    if status_data == 'Done':
+        data = controller_instance.update_status_to_done(task_id)
+    else:
+        data = {'error': 'Invalid status update'}
+
     response = make_response(data)
     response.headers['Content-Type'] = 'application/json'
     return response

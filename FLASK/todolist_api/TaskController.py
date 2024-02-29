@@ -81,7 +81,7 @@ class Controller(MethodView):
         else:
             abort(404, message=f"Task {task_id} was not found!")
 
-    def patch(self, task_id, updated_data):
+    def patch(self, task_id, updated_field):
         if self.repository.task_exists(task_id):
 
             # Get the existing task from the repo
@@ -90,7 +90,7 @@ class Controller(MethodView):
             # Adjusting and formatting last modified date to %Y-%m-%d format
             existing_task['last_modified_date'] = datetime.today().strftime('%Y-%m-%d %H:%M')
 
-            for field, value in updated_data.items():
+            for field, value in updated_field.items():
                 if field in existing_task:
                     existing_task[field] = value
                 else:
@@ -107,3 +107,14 @@ class Controller(MethodView):
             return {"message": f"Task with ID {task_id} deleted successfully."}, 200
         else:
             abort(404, message=f'Task {task_id} was not found!')
+
+    def update_status_to_done(self, task_id):
+        if self.repository.task_exists(task_id):
+            task = self.repository.get_by_id(task_id)
+            task['status'] = "Done"
+
+            self.repository.update(task_id, task)
+
+            return {"message": f"Task's status with ID {task_id} updated successfully."}, 200
+        else:
+            abort(404, message=f"Task {task_id} was not found!")
