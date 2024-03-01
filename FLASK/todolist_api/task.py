@@ -49,6 +49,8 @@ class Task:
         self.last_modified_date = datetime.now()
 
     def __repr__(self):
+        comments_str = ', '.join([f"'{comment}'" for comment in self.comments])
+
         return (f"{self.__class__.__name__}('{self.name}', '{self.assigner}', '{self.company}', "
                 f"{self.priority}, '{self.description}', '{self.status}', {self.assigned_personnel}, "
-                f"'{self.creation_date}', '{self.last_modified_date}', '{self.comments}')")
+                f"'{self.creation_date}', '{self.last_modified_date}', [{comments_str}])")

@@ -1,5 +1,7 @@
 from flask.views import MethodView
 from flask_restful import abort, reqparse
+from exceptions import TaskNotFoundError, InvalidTaskIdError
+
 from datetime import datetime
 
 
@@ -57,12 +59,21 @@ class Controller(MethodView):
         self.repository = repository
 
     def get(self, task_id):
-        if task_id.lower() == "all":
-            return self.repository.get_all()
-        elif self.repository.task_exists(task_id):
-            return self.repository.get_by_id(task_id)
-        else:
-            abort(404, message=f'Task {task_id} was not found!')
+        try:
+            if task_id.lower() == "all":
+                return self.repository.get_all()
+
+            if not self.repository.is_valid_task_id(task_id):
+                raise InvalidTaskIdError(task_id)
+
+            elif self.repository.task_exists(task_id):
+                return self.repository.get_by_id(task_id)
+            else:
+                raise TaskNotFoundError(task_id)
+
+        except (InvalidTaskIdError, TaskNotFoundError) as error:
+            status_code = 404 if isinstance(error, TaskNotFoundError) else 400
+            abort(status_code, message=str(error))
 
     def post(self):
         new_data = parser_create()

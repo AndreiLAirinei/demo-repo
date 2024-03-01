@@ -1,5 +1,5 @@
 from file_changes import write_changes_to_file, read_tasks_from_file
-
+import re
 
 class JSONRepository:
     """ A repository class that stores tasks in memory. """
@@ -14,19 +14,19 @@ class JSONRepository:
             print(f"Error loading tasks from file: {error}")
 
     def get_all(self):
-        return self.__data  # Returns all the data in the repository
+        return self.__data
 
     def get_by_id(self, task_id):
         task_data = self.__data[task_id].copy()  # Create a copy to avoid modifying the original data
         return task_data  # Returns the data
 
     def create(self, attr):
-        task_id = self.generate_task_id()  # Generates ID
-        new_task = {task_id: attr}  # Creates the new task
+        task_id = self.generate_task_id()
+        new_task = {task_id: attr}
 
-        self.__data[task_id] = new_task  # Adds the new task to the data
-        write_changes_to_file(new_task)  # Writes the updated data back to file
-        return new_task  # Returns the newly created task
+        self.__data[task_id] = new_task
+        write_changes_to_file(new_task)
+        return new_task
 
     def update(self, task_id, updated_data):
         updated_task = {task_id: updated_data}
@@ -40,18 +40,20 @@ class JSONRepository:
         return updated_task
 
     def delete(self, task_id):
-        deleted_task = self.__data.pop(task_id)  # Removes the item and returns its value
-        write_changes_to_file(self.__data)  # Writes the updated data back to file
-        return deleted_task  # Returns the deleted task (for double-checking)
+        deleted_task = self.__data.pop(task_id)
+        write_changes_to_file(self.__data)
+        return deleted_task
 
-    #  Checks if a tasks exists or not.
     def task_exists(self, task_id):
         if task_id not in self.__data:
-            print(f"Task with ID {task_id} does not exist.")
             return False
         return True
 
-    # Generates an ID for each created task
+    @staticmethod
+    def is_valid_task_id(task_id):
+        pattern = re.compile(r'^task\d+$')
+        return bool(pattern.match(task_id))
+
     def generate_task_id(self):
         existing_tasks = self.__data
 
