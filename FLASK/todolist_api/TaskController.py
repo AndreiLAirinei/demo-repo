@@ -1,6 +1,6 @@
 from flask.views import MethodView
 from flask_restful import abort, reqparse
-from exceptions import TaskNotFoundError, InvalidTaskIdError
+from exceptions import TaskNotFoundError, InvalidTaskIdError, ParsingError
 
 from datetime import datetime
 
@@ -23,11 +23,16 @@ def parser():
                              default=datetime.today())
     parser_args.add_argument('comments', type=str)
 
-    args = parser_args.parse_args()
 
-    if not args['name'] or not args['assigner'] or not args['company']:
-        abort(400, message="Bad request: Missing or incorrect data in the request.")
-    return args
+    try:
+        args = parser_args.parse_args()
+        if not args['name'] or not args['assigner'] or not args['company']:
+            raise ParsingError()
+        return args
+    except ParsingError as error:
+        abort(error.status_code, message = str(error))
+
+
 
 
 def parser_create():

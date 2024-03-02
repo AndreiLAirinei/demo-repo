@@ -1,6 +1,7 @@
 from file_changes import write_changes_to_file, read_tasks_from_file
 import re
 
+
 class JSONRepository:
     """ A repository class that stores tasks in memory. """
     def __init__(self):

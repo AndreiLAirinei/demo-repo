@@ -29,13 +29,10 @@ def write_changes_to_file(new_task, file_path='tasks.json'):
         with open(file_path, "w") as file:
             json.dump(existing_tasks, file, indent=2, separators=(',', ': '), default=str)
 
-    except FileNotFoundError as file_error:
-        print(f"Error writing tasks to file: {file_error}")
-    except JSONDecodeError as json_error:
-        print(f"Error writing tasks to file: {json_error}")
-    except FileError as file_error:
-        print(f"Error writing tasks to file: {file_error}")
+    except (FileNotFoundError, FileError, JSONDecodeError) as error:
+        print(f"Error writing tasks to file: {error}")
 
+        # To do in an auxiliary function using bubble sort
         # # Sort tasks by 'priority'
         # sorted_tasks = sorted(existing_tasks.items(), key=lambda x: x[1].get('priority'), reverse=True)
         # # Convert the sorted tasks to a dictionary
