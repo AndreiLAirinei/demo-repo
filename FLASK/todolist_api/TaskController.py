@@ -1,8 +1,10 @@
 from flask.views import MethodView
 from flask_restful import abort, reqparse
-from exceptions import TaskNotFoundError, InvalidTaskIdError, ParsingError
 
+from task import Task
 from datetime import datetime
+
+from exceptions import TaskNotFoundError, InvalidTaskIdError, ParsingError
 
 
 def parser():
@@ -12,17 +14,12 @@ def parser():
     parser_args.add_argument('assigner', type=str, required=True)
     parser_args.add_argument('company', type=str, required=True)
 
-    parser_args.add_argument('deadline', type=str)
+    parser_args.add_argument('deadline', type=lambda
+        x: datetime.strptime(x, '%Y-%m-%d %H:%M') if x else None)
     parser_args.add_argument('priority', type=int)
     parser_args.add_argument('description', type=str)
-    parser_args.add_argument('status', default='In progress')
     parser_args.add_argument('assigned_personnel', type=str)
-    parser_args.add_argument('creation_date', type=datetime,
-                             default=datetime.today())
-    parser_args.add_argument('last_modified_date', type=datetime,
-                             default=datetime.today())
     parser_args.add_argument('comments', type=str)
-
 
     try:
         args = parser_args.parse_args()
@@ -30,28 +27,23 @@ def parser():
             raise ParsingError()
         return args
     except ParsingError as error:
-        abort(error.status_code, message = str(error))
-
-
+        abort(error.status_code, message=str(error))
 
 
 def parser_create():
     args = parser()
-
-    creation_date = args['creation_date'].strftime('%Y-%m-%d %H:%M')
-    last_modified_date = args['last_modified_date'].strftime('%Y-%m-%d %H:%M')
 
     new_data = {
         "name": args["name"],
         "assigner": args['assigner'],
         "company": args['company'],
         "deadline": args['deadline'],
+        "status": Task().status,
         "priority": args['priority'],
         "description": args['description'],
-        "status": args['status'],
         "assigned_personnel": args['assigned_personnel'],
-        "creation_date": creation_date,
-        "last_modified_date": last_modified_date,
+        "creation_date": Task().creation_date,
+        "last_modified_date": Task().last_modified_date,
         "comments": args['comments'],
     }
 

@@ -11,42 +11,51 @@ class Task:
                  deadline: Optional[datetime] = None,
                  priority: Optional[int] = 0,
                  description: Optional[str] = "",
-                 status: str = "Not started",
                  assigned_personnel: Optional[List[str]] = None,
-                 creation_date: Optional[datetime] = None,
-                 last_modified_date: Optional[datetime] = None,
                  comments: Optional[str] = ""
-                 ):
+                 ) -> object:
 
         self.name = name
         self.assigner = assigner
         self.company = company
         self.deadline = deadline
+        self._status = 'In progress'
         self.priority = priority if priority in [1, 2, 3] else 0
         self.description = description
-        self.status = status
         self.assigned_personnel = assigned_personnel
-        self.creation_date = creation_date if creation_date else datetime.now()
-        self.last_modified_date = last_modified_date if last_modified_date else self.creation_date
+        self._creation_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+        self._last_modified_date = datetime.now().strftime("%Y-%m-%d %H:%M")
         self.comments = comments
 
-    # Comparison methods
-    def __eq__(self, other):
-        return self.priority == other.priority
+    @property
+    def status(self):
+        return self._status
 
-    def __lt__(self, other):
-        return self.priority < other.priority
+    @status.setter
+    def status(self, new_status='Completed'):
+        self._status = new_status
+
+    @property
+    def creation_date(self):
+        return self._creation_date
+
+    @property
+    def last_modified_date(self):
+        return self._last_modified_date
+
+    def _update_last_modified_date(self):
+        self._last_modified_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    def add_comment(self, new_comment):
+        self.comments += f"\n {new_comment}"
+        self._update_last_modified_date()
 
     def is_overdue(self):
         if self.deadline < datetime.now():
             return f"Task is overdue!"
-        elif self.deadline >= datetime.now():
+        else:
             remaining_time = self.deadline - datetime.now()
             return f"You still have {remaining_time.days} days to do the task!"
-
-    def add_comment(self, new_comment):
-        self.comments += f"\n {new_comment}"
-        self.last_modified_date = datetime.now()
 
     def __repr__(self):
         comments_str = ', '.join([f"'{comment}'" for comment in self.comments])
