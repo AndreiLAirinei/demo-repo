@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response
+from flask import Flask, request, make_response, jsonify
 from TaskController import Controller
 from Repository import JSONRepository
 
@@ -51,8 +51,17 @@ def delete_task(task_id):
 
 @app.route('/tasks/<task_id>', methods=['PUT'])
 def put_task(task_id):
+    # Call the put method in your controller
     data = controller_instance.put(task_id)
-    response = make_response(data)
+
+    # Check if the data is a valid response
+    if isinstance(data, tuple) and len(data) == 2:
+        response_data, status_code = data
+        response = make_response(jsonify(response_data), status_code)
+    else:
+        # If the put method doesn't return a valid response, create a generic error response
+        response = make_response(jsonify({"error": "Invalid response from put method"}), 500)
+
     response.headers['Content-Type'] = 'application/json'
     return response
 

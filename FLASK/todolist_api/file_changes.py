@@ -1,5 +1,5 @@
 import json
-from exceptions import FileError, FileNotFoundError, JSONDecodeError
+from exceptions import FileNotFoundError, JSONDecodeError
 
 
 def read_tasks_from_file(file_path='tasks.json'):
@@ -10,12 +10,8 @@ def read_tasks_from_file(file_path='tasks.json'):
             tasks_data = json.load(file)
         return tasks_data
 
-    except FileNotFoundError as file_error:
-        print(f"Error writing tasks to file: {file_error}")
-    except JSONDecodeError as json_error:
-        print(f"Error writing tasks to file: {json_error}")
-    except FileError as file_error:
-        print(f"Error reading tasks from file: {file_error}")
+    except (FileNotFoundError, JSONDecodeError) as error:
+        print(str(error))
     except Exception as e:
         print(f"Unexpected error: {e}")
     return default_value
@@ -29,8 +25,10 @@ def write_changes_to_file(new_task, file_path='tasks.json'):
         with open(file_path, "w") as file:
             json.dump(existing_tasks, file, indent=2, separators=(',', ': '), default=str)
 
-    except (FileNotFoundError, FileError, JSONDecodeError) as error:
+    except (FileNotFoundError, JSONDecodeError) as error:
         print(f"Error writing tasks to file: {error}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
 
         # To do in an auxiliary function using bubble sort
         # # Sort tasks by 'priority'

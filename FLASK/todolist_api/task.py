@@ -12,19 +12,22 @@ class Task:
                  priority: Optional[int] = 0,
                  description: Optional[str] = "",
                  assigned_personnel: Optional[List[str]] = None,
-                 comments: Optional[str] = ""
-                 ) -> object:
+                 comments: Optional[str] = "",
+                 creation_date=datetime.now().strftime("%Y-%m-%d %H:%M"),
+                 status='In progress',
+                 last_modified_date=datetime.now().strftime("%Y-%m-%d %H:%M")
+                 ):
 
         self.name = name
         self.assigner = assigner
         self.company = company
         self.deadline = deadline
-        self._status = 'In progress'
+        self._status = status
         self.priority = priority if priority in [1, 2, 3] else 0
         self.description = description
         self.assigned_personnel = assigned_personnel
-        self._creation_date = datetime.now().strftime("%Y-%m-%d %H:%M")
-        self._last_modified_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+        self._creation_date = creation_date
+        self._last_modified_date = last_modified_date
         self.comments = comments
 
     @property
@@ -32,7 +35,7 @@ class Task:
         return self._status
 
     @status.setter
-    def status(self, new_status='Completed'):
+    def status(self, new_status='Done'):
         self._status = new_status
 
     @property
@@ -43,12 +46,12 @@ class Task:
     def last_modified_date(self):
         return self._last_modified_date
 
-    def _update_last_modified_date(self):
+    def update_last_modified_date(self):
         self._last_modified_date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
     def add_comment(self, new_comment):
         self.comments += f"\n {new_comment}"
-        self._update_last_modified_date()
+        self.update_last_modified_date()
 
     def is_overdue(self):
         if self.deadline < datetime.now():

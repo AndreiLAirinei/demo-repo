@@ -4,7 +4,7 @@ from flask_restful import abort, reqparse
 from task import Task
 from datetime import datetime
 
-from exceptions import TaskNotFoundError, InvalidTaskIdError, ParsingError
+from exceptions import TaskNotFoundError, InvalidTaskIdError, ParsingError, RepositoryError, FieldNotFoundError
 
 
 def parser():
@@ -33,24 +33,34 @@ def parser():
 def parser_create():
     args = parser()
 
+    task = Task(
+        name=args['name'],
+        assigner=args['assigner'],
+        company=args['company'],
+        deadline=args['deadline'],
+        priority=args['priority'],
+        description=args['description'],
+        assigned_personnel=args['assigned_personnel'],
+        comments=args['comments']
+    )
+
     new_data = {
-        "name": args["name"],
-        "assigner": args['assigner'],
-        "company": args['company'],
-        "deadline": args['deadline'],
-        "status": Task().status,
-        "priority": args['priority'],
-        "description": args['description'],
-        "assigned_personnel": args['assigned_personnel'],
-        "creation_date": Task().creation_date,
-        "last_modified_date": Task().last_modified_date,
-        "comments": args['comments'],
+        "name": task.name,
+        "assigner": task.assigner,
+        "company": task.company,
+        "deadline": task.deadline.strftime('%Y-%m-%d %H:%M'),
+        "status": task.status,
+        "priority": task.priority,
+        "description": task.description,
+        "assigned_personnel": task.assigned_personnel,
+        "creation_date": task.creation_date,
+        "last_modified_date": task.last_modified_date,
+        "comments": task.comments,
     }
 
     return new_data
 
 
-# Interface
 class Controller(MethodView):
     def __init__(self, repository):
         self.repository = repository
@@ -73,56 +83,79 @@ class Controller(MethodView):
             abort(status_code, message=str(error))
 
     def post(self):
-        new_data = parser_create()
-        self.repository.create(new_data)
-        return {"message": f"Task created successfully."}, 200
+        try:
+            new_data = parser_create()
+            self.repository.create(new_data)
+            return {"message": f"Task created successfully."}, 200
+        except (ParsingError, RepositoryError) as error:
+            abort(error.status_code, message=str(error))
 
     def put(self, task_id):
-        if self.repository.task_exists(task_id):
-            existing_task = self.repository.get_by_id(task_id)
+        try:
+            if not self.repository.is_valid_task_id(task_id):
+                raise InvalidTaskIdError
 
-            existing_task['last_modified_date'] = datetime.today().strftime('%Y-%m-%d %H:%M')
-            updated_data = parser_create()
+            if self.repository.task_exists(task_id):
+                updated_data = parser_create()
 
-            self.repository.update(task_id, updated_data)
-            return {"message": f"Task with ID {task_id} created successfully."}, 200
-        else:
-            abort(404, message=f"Task {task_id} was not found!")
+                task_instance = Task(**updated_data)
+                task_instance.update_last_modified_date()
+
+                self.repository.update(task_id, task_instance.__dict__)
+                return {"message": f"Task with ID {task_id} updated successfully."}, 200
+            else:
+                raise TaskNotFoundError
+
+        except (TaskNotFoundError, InvalidTaskIdError) as error:
+            abort(error.status_code, message=str(error))
 
     def patch(self, task_id, updated_field):
-        if self.repository.task_exists(task_id):
+        try:
+            if not self.repository.is_valid_task_id(task_id):
+                raise InvalidTaskIdError
 
-            # Get the existing task from the repo
-            existing_task = self.repository.get_by_id(task_id)
+            if self.repository.task_exists(task_id):
+                existing_task = self.repository.get_by_id(task_id)
+                existing_task.update_last_modified_date()
 
-            # Adjusting and formatting last modified date to %Y-%m-%d format
-            existing_task['last_modified_date'] = datetime.today().strftime('%Y-%m-%d %H:%M')
+                for field, value in updated_field.items():
+                    if field in existing_task:
+                        existing_task[field] = value
+                    else:
+                        raise FieldNotFoundError
 
-            for field, value in updated_field.items():
-                if field in existing_task:
-                    existing_task[field] = value
-                else:
-                    abort(404, message=f"Field '{field}' not found in task with ID {task_id}.")
+                self.repository.update(task_id, existing_task)
+                return {"message": f"Task with ID {task_id} patched successfully."}, 200
 
-            self.repository.update(task_id, existing_task)
-            return {"message": f"Task with ID {task_id} patched successfully."}, 200
-        else:
-            abort(404, message=f"Task with ID {task_id} not found.")
+        except (InvalidTaskIdError, TaskNotFoundError, FieldNotFoundError) as error:
+            abort(error.status_code, message=str(error))
 
     def delete(self, task_id):
-        if self.repository.task_exists(task_id):
-            self.repository.delete(task_id)
-            return {"message": f"Task with ID {task_id} deleted successfully."}, 200
-        else:
-            abort(404, message=f'Task {task_id} was not found!')
+        try:
+            if not self.repository.is_valid_task_id(task_id):
+                raise InvalidTaskIdError
+
+            if self.repository.task_exists(task_id):
+                self.repository.delete(task_id)
+                return {"message": f"Task with ID {task_id} deleted successfully."}, 200
+            else:
+                raise TaskNotFoundError
+        except (InvalidTaskIdError, TaskNotFoundError) as error:
+            abort(error.status_code, message=str(error))
 
     def update_status_to_done(self, task_id):
-        if self.repository.task_exists(task_id):
-            task = self.repository.get_by_id(task_id)
-            task['status'] = "Done"
+        try:
+            if not self.repository.is_valid_task_id(task_id):
+                raise InvalidTaskIdError
 
-            self.repository.update(task_id, task)
+            if self.repository.task_exists(task_id):
+                task = self.repository.get_by_id(task_id)
+                task.update_status()
 
-            return {"message": f"Task's status with ID {task_id} updated successfully."}, 200
-        else:
-            abort(404, message=f"Task {task_id} was not found!")
+                self.repository.update(task_id, task)
+
+                return {"message": f"Task's status with ID {task_id} updated successfully."}, 200
+            else:
+                raise TaskNotFoundError
+        except (InvalidTaskIdError, TaskNotFoundError) as error:
+            abort(error.status_code, message=str(error))
