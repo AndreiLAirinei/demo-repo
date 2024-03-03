@@ -1,39 +1,68 @@
-from flask_restful import Resource, reqparse, abort
-from todo_list_file_changes import write_changes_to_file, tasks
 from datetime import datetime
-
-parser = reqparse.RequestParser()
-parser.add_argument('name', type=str, required=True, location='form')
-parser.add_argument('dueDate', type=datetime, required=False, location='form')
+from typing import List, Optional
 
 
-class Task(Resource):
+class Task:
 
-    @classmethod
-    def get(cls, task_id):
-        if task_id == "all":
-            return tasks
-        if task_id not in tasks:
-            abort(404, message=f'Task {task_id} was not found!')
-        return tasks[task_id]
+    def __init__(self,
+                 name: str,
+                 assigner: str,
+                 company: str,
+                 deadline: Optional[datetime] = None,
+                 priority: Optional[int] = 0,
+                 description: Optional[str] = "",
+                 assigned_personnel: Optional[List[str]] = None,
+                 comments: Optional[str] = "",
+                 creation_date=datetime.now().strftime("%Y-%m-%d %H:%M"),
+                 status='In progress',
+                 last_modified_date=datetime.now().strftime("%Y-%m-%d %H:%M")
+                 ):
 
-    @classmethod
-    def put(cls, task_id):
-        args = parser.parse_args()
-        new_task = {'name': args['name'],
-                    'dueDate': args['dueDate']}
+        self.name = name
+        self.assigner = assigner
+        self.company = company
+        self.deadline = deadline
+        self._status = status
+        self.priority = priority if priority in [1, 2, 3] else 0
+        self.description = description
+        self.assigned_personnel = assigned_personnel
+        self._creation_date = creation_date
+        self._last_modified_date = last_modified_date
+        self.comments = comments
 
-        if not new_task['dueDate']:
-            new_task['dueDate'] = datetime.today().year
+    @property
+    def status(self):
+        return self._status
 
-        tasks[task_id] = new_task
-        write_changes_to_file()
-        return {task_id: tasks[task_id]}, 201
+    @status.setter
+    def status(self, new_status='Done'):
+        self._status = new_status
 
-    @classmethod
-    def delete(cls, task_id):
-        if task_id not in tasks:
-            abort(404, message=f'Task {task_id} was not found!')
-        del tasks[task_id]
-        write_changes_to_file()
-        return "", 204
+    @property
+    def creation_date(self):
+        return self._creation_date
+
+    @property
+    def last_modified_date(self):
+        return self._last_modified_date
+
+    def update_last_modified_date(self):
+        self._last_modified_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    def add_comment(self, new_comment):
+        self.comments += f"\n {new_comment}"
+        self.update_last_modified_date()
+
+    def is_overdue(self):
+        if self.deadline < datetime.now():
+            return f"Task is overdue!"
+        else:
+            remaining_time = self.deadline - datetime.now()
+            return f"You still have {remaining_time.days} days to do the task!"
+
+    def __repr__(self):
+        comments_str = ', '.join([f"'{comment}'" for comment in self.comments])
+
+        return (f"{self.__class__.__name__}('{self.name}', '{self.assigner}', '{self.company}', "
+                f"{self.priority}, '{self.description}', '{self.status}', {self.assigned_personnel}, "
+                f"'{self.creation_date}', '{self.last_modified_date}', [{comments_str}])")
